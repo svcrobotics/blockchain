@@ -109,7 +109,7 @@ Une page `/blockchain` peut afficher l’historique sous forme de tableau imprim
   "previous_hash": "a34e6b...f5629c",
   "hash": "b28df5...c9370a"
 }
-
+```
 
 ---
 
