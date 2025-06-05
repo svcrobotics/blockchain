@@ -1,35 +1,132 @@
-# Blockchain
+# 🧱 blockchain
 
-TODO: Delete this and the text below, and describe your gem
+Une gem Ruby légère pour certifier les ventes d’une application de caisse via une blockchain locale, simple et fiable.
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/blockchain`. To experiment with that code, run `bin/console` for an interactive prompt.
+## ✨ Objectif
 
-## Installation
+Garantir l’intégrité des ventes, remboursements et annulations dans un environnement de point de vente.  
+Chaque opération sensible est enregistrée dans un bloc, chaîné cryptographiquement pour garantir l’inviolabilité de l’historique.
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
+---
 
-Install the gem and add to the application's Gemfile by executing:
+## ⚙️ Fonctionnalités principales
+
+- Création d’un **Genesis block**
+- Ajout de blocs contenant les données suivantes :
+  - Type d'opération (`Vente`, `Annulation`, `Remboursement`)
+  - Détail des produits (nom, prix, quantité)
+  - Montant total
+  - Client associé (le cas échéant)
+- Vérification de l’intégrité de la chaîne (`Blockchain::Service.valid?`)
+- Affichage HTML stylisé avec état de la blockchain (✅ valide ou ❌ corrompue)
+- Intégration simple dans une app Rails
+
+---
+
+## 🚀 Installation
+
+Ajoute cette ligne à ton `Gemfile` dans l'application principale :
+
+```ruby
+gem 'blockchain', path: '../blockchain'
+````
+
+Puis lance :
 
 ```bash
-bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+bundle install
 ```
 
-If bundler is not being used to manage dependencies, install the gem by executing:
+---
 
-```bash
-gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+## 🧩 Utilisation dans Rails
+
+### Création d’un bloc après une vente :
+
+```ruby
+Blockchain::Service.add_block({
+  type: 'Vente',
+  vente_id: @vente.id,
+  produits: @vente.ventes_produits.map do |vp|
+    {
+      nom: vp.produit.nom,
+      quantite: vp.quantite,
+      prix: vp.prix_unitaire
+    }
+  end,
+  total: @vente.total_net,
+  client: @vente.client&.nom
+})
 ```
 
-## Usage
+### Vérification de la chaîne :
 
-TODO: Write usage instructions here
+```ruby
+Blockchain::Service.valid? # => true ou false
+```
 
-## Development
+---
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+## 🗂️ Fichier blockchain
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+La blockchain est stockée sous forme JSON dans :
 
-## Contributing
+```
+Rails.root/storage/blockchain.json
+```
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/blockchain.
+---
+
+## 👩‍💻 Interface admin (facultatif)
+
+Une page `/blockchain` peut afficher l’historique sous forme de tableau imprimable avec :
+
+* Numéro de bloc
+* Date / heure
+* Type d’opération
+* Vente liée
+* Détail des produits
+* Montant
+* Client
+
+---
+
+## ✅ Exemple d’entrée dans la blockchain
+
+```json
+{
+  "index": 5,
+  "timestamp": "2025-06-04 13:45:10 UTC",
+  "data": {
+    "type": "Annulation",
+    "vente_id": 123,
+    "produits": [
+      { "nom": "Robe Zara", "quantite": 1, "prix": "29.0" }
+    ],
+    "total": "29.0",
+    "client": "Sophie Dupont"
+  },
+  "previous_hash": "a34e6b...f5629c",
+  "hash": "b28df5...c9370a"
+}
+
+
+---
+
+## 🔐 Pourquoi une blockchain locale ?
+
+* Pour répondre aux **exigences de traçabilité et d’inaltérabilité** imposées aux systèmes de caisse.
+* Pour **prévenir toute falsification** de ventes ou d’annulations après coup.
+* Pour **informer clairement en cas de corruption** de l’historique.
+
+---
+
+## 🛠️ TODO
+
+* Installation depuis RubyGems
+---
+
+## 📄 Licence
+
+MIT – Utilisation libre pour projets commerciaux ou personnels.
+
